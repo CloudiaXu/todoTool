@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+
+<head>
+    <link rel=stylesheet type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.css">
+</head>
+
+<body>
+    <div id="app" class="container my-3">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">待辦事項</span>
+            </div>
+            <input type="text" class="form-control" placeholder="準備要做的任務" id="newTodo">
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" id="addTodo">新增</button>
+            </div>
+        </div>
+        <div class="card text-center">
+            <ul class="list-group list-group-flush text-left" id="todoList">
+            </ul>
+            <div class="card-footer d-flex justify-content-between">
+                <span>還有 <span id="taskCount">0</span> 筆任務</span>
+                <a href="#" id="clearTask">清除所有任務</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var Data = [];
+        var todoData = [];
+        var newTodo = document.querySelector("#newTodo");
+        // var todoList = document.querySelector("#todoList");
+        var addTodo = document.querySelector("#addTodo");
+        addTodo.addEventListener('click', function () { addData() });
+        var clearTask = document.querySelector("#clearTask");
+        clearTask.addEventListener('click', function () { removeAllData() });
+        var taskCount = document.querySelector("#taskCount");
+
+
+        var count = 0;
+
+        function addData() {
+            var getData = newTodo.value;
+            var addId = Math.floor(Date.now());
+
+            todoData.push({
+                id: addId,
+                data: getData,
+                completed: false,
+            });
+            renderTodoList();
+
+        }
+
+        function removeAllData() {
+            todoData = [];
+            renderTodoList();
+        }
+
+        function addRemoveDataListener() {
+            document.querySelectorAll(".remove-data").forEach((item) => {
+                item.addEventListener('click', function () {
+                    console.log(item.getAttribute("data-id"));
+                    removeItem(item.getAttribute("data-id"));
+                    renderTodoList();
+                });
+            });
+        }
+
+        function removeItem(getDataId) {
+            function isLargeNumber(element) {
+                return element.id == getDataId;
+            };
+            todoData.splice(todoData.findIndex(isLargeNumber), 1);
+        }
+
+        function addTodoCompleteListener() {
+            document.querySelectorAll(".todo-complete").forEach((item) => {
+                console.log(item);
+                item.addEventListener('click', function () {
+                    console.log(item.getAttribute("data-id"));
+                    addCompleteItem(item.getAttribute("data-id"));
+                    renderTodoList();
+                });
+            });
+        }
+
+        function addCompleteItem(getDataId) {
+            function isLargeNumber(element) {
+                return element.id == getDataId;
+            };
+            // console.log(todoData.findIndex(isLargeNumber));
+            var item = todoData[todoData.findIndex(isLargeNumber)];
+            item.completed = !item.completed;
+            //↓等同下述的寫法
+            // if(todoData[todoData.findIndex(isLargeNumber)].completed){
+            //     todoData[todoData.findIndex(isLargeNumber)].completed=false;
+            // }
+            // else{
+            //     todoData[todoData.findIndex(isLargeNumber)].completed=true;
+            // }
+
+        }
+
+        //資料、畫面分離 = 關注點分離 
+        function renderTodoList() {
+            let allData = "";
+            todoData.forEach(function (item) {
+
+                allData += `<li class="list-group-item">
+                        <div class="d-flex">
+                            <div class="form-check">
+                            <input type="checkbox" class="form-check-input todo-complete" ${item.completed ? 'checked' : ''} data-action="complete" data-id="${item.id}" >
+                            <label class="form-check-label ${item.completed ? 'completed' : ''}" data-action="complete" data-id="${item.id}"> ${item.data}</label>
+                            </div>
+                            <button type="button" class="close ml-auto" aria-label="Close">
+                                <span aria-hidden="true" data-action="remove" data-id="${item.id}" class="remove-data">&times;</span>
+                            </button>
+                        </div>
+                </li>`;
+            });
+            todoList.innerHTML = allData;
+            taskCount.textContent = todoData.length;
+            addRemoveDataListener();
+            addTodoCompleteListener();
+        }
+    </script>
+
+</body>
+
+</html>
